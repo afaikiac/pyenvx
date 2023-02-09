@@ -53,8 +53,8 @@ poetry
 $ pyenvx uninstall pdm poetry
 # The script removes these virtual environments 
 # from your global pyenv setup and deletes them permanently. 
-# As a result, these CLI programs are no longer available
-# on your computer.
+# As a result, the CLI programs in these venvs are no longer
+# available on your computer.
 ```
 
 ## Configuration
