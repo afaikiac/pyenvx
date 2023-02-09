@@ -2,10 +2,6 @@
 
 The creation of this script was inspired by `pipx` but it does not disrupt my `pyenv` workflow. I simply want the latest versions of CLI or GUI tools, such as `pdm`, `poetry` or `Anki`, while still utilizing the power of `pyenv`. And I don't want to have to install a massive amount of Python dependencies through my Linux package manager!
 
-## Overview
-
-This script is used for installing and uninstalling packages in isolated virtual environments using `pyenv`. It allows you to manage different versions of Python and packages with ease, by creating a virtual environment for each `package_name-python_version` combination.
-
 ## Requirements
 
 - [`pyenv`](https://github.com/pyenv/pyenv#installation) must be installed and configured.
@@ -32,7 +28,7 @@ pyenvx uninstall virtual_evironment_name [virtual_evironment_name ...]
 $ pyenvx install 3.11.1 pdm poetry
 # This script installs python_version specified with pyenv then
 # creates a separate virtual environment for each package:
-#     package_name-python_version (e.g. pdm-3.11.1, poetry-3.11.1)
+#     package_name (e.g. pdm, poetry virtual environments)
 # The package is then installed in the corresponding environment.
 # Finally, the environment is added to the global pyenv setup.
 # You can now run the programs!
@@ -52,9 +48,9 @@ $ pyenvx install 3.11.1 pdm
 $ pyenv global
 system
 3.11.1
-pdm-3.11.1
-poetry-3.11.1
-$ pyenvx uninstall pdm-3.11.1 poetry-3.11.1
+pdm
+poetry
+$ pyenvx uninstall pdm poetry
 # The script removes these virtual environments 
 # from your global pyenv setup and deletes them permanently. 
 # As a result, these CLI programs are no longer available

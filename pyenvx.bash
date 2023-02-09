@@ -25,8 +25,10 @@ check_pyenv_virtualenv_module() {
 
 check_package_name() {
 	local package=$1
+
 	local response
 	response=$(curl -s -o /dev/null -w "%{http_code}" https://pypi.org/project/"$package"/)
+
 	if ! [ "$response" -eq 200 ]; then
 		die "Package '$package' not found in PyPI"
 	fi
@@ -91,7 +93,7 @@ install_package_in_venv() {
 install() {
 	local package=$1
 	local python_version=$2
-	local venv_name="$package-$python_version"
+	local venv_name="$package"
 
 	check_package_name "$package"
 
