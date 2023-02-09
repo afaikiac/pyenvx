@@ -101,7 +101,7 @@ install() {
 	local venv_name="$package-$python_version"
 
 	# it's possible to do it in venv
-    # and ecxclude pip dependency
+	# and exclude pip dependency
 	check_package_name "$package"
 
 	if pyenv virtualenvs --bare | grep "$venv_name" &>/dev/null; then
