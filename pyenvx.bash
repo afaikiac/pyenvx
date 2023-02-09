@@ -150,8 +150,8 @@ main() {
 		done
 		;;
 	*)
-        local script_name
-        script_name=$(basename "$0")
+		local script_name
+		script_name=$(basename "$0")
 		echo "Usage:"
 		echo "    $script_name install python_version package_name [package_name ...]"
 		echo "    $script_name uninstall virtual_evironment_name [virtual_evironment_name ...]"
