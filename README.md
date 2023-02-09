@@ -10,7 +10,6 @@ This script is used for installing and uninstalling packages in isolated virtual
 
 - [`pyenv`](https://github.com/pyenv/pyenv#installation) must be installed and configured.
 - [`pyenv-virtualenv`](https://github.com/pyenv/pyenv-virtualenv#installation) must be installed and integrated with `pyenv`.
-- `pip` must be installed.
 
 ## Installation
 

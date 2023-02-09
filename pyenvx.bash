@@ -23,10 +23,14 @@ check_pyenv_virtualenv_module() {
 	fi
 }
 
-check_pip_in_path() {
-	if ! command -v pip &>/dev/null; then
-		die "'pip' not found. Please install it first."
+check_package_name() {
+	local package=$1
+	local response
+	response=$(curl -s -o /dev/null -w "%{http_code}" https://pypi.org/project/"$package"/)
+	if ! [ "$response" -eq 200 ]; then
+		die "Package '$package' not found in PyPI"
 	fi
+	log "Package '$package' found in PyPI"
 }
 
 create_venv() {
@@ -84,24 +88,11 @@ install_package_in_venv() {
 	pyenv deactivate
 }
 
-check_package_name() {
-	local package=$1
-
-	check_pip_in_path
-
-	if ! pip index versions "$package" &>/dev/null; then
-		die "Package '$package' not found in PyPI"
-	fi
-	log "Package '$package' found in PyPI"
-}
-
 install() {
 	local package=$1
 	local python_version=$2
 	local venv_name="$package-$python_version"
 
-	# it's possible to do it in venv
-	# and exclude pip dependency
 	check_package_name "$package"
 
 	if pyenv virtualenvs --bare | grep "$venv_name" &>/dev/null; then
