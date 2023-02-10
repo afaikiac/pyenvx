@@ -3,11 +3,11 @@
 set -euo pipefail
 
 function print() {
-	echo "$@" &>/dev/tty
+	printf "%s\n" "$@" &>/dev/tty
 }
 
 function log() {
-	echo "[$(basename "$0")] $1" &>/dev/tty
+	printf "%s\n" "[$(basename "$0")] $1" &>/dev/tty
 }
 
 function die() {
