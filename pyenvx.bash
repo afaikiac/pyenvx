@@ -127,7 +127,6 @@ function select_python_version {
 
 function install() {
 	local package=$1
-	local python_version=$2
 	local venv_name="$package"
 
 	check_package_name "$package"
@@ -135,6 +134,8 @@ function install() {
 	if pyenv virtualenvs --bare | grep "$venv_name" &>/dev/null; then
 		install_package_in_venv "$package" "$venv_name"
 	else
+		local python_version
+		python_version=$(select_python_version)
 		create_venv "$venv_name" "$python_version"
 		install_package_in_venv "$package" "$venv_name"
 		add_venv_to_global "$venv_name"
@@ -165,10 +166,8 @@ function main() {
 
 	case "$command" in
 	install)
-		local python_version
-		python_version=$(select_python_version)
 		for package in "$@"; do
-			install "$package" "$python_version"
+			install "$package"
 		done
 		;;
 	uninstall)
