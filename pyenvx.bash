@@ -27,6 +27,13 @@ function check_pyenv_virtualenv_module() {
 	fi
 }
 
+function check_python() {
+    local versions=("$@")
+	if [ ${#versions[@]} -eq 0 ]; then
+		die "No Python interpreters found. Please install one first."
+	fi
+}
+
 function check_package_name() {
 	local package=$1
 
@@ -94,36 +101,37 @@ function install_package_in_venv() {
 	pyenv deactivate
 }
 
-function select_python_version {
-	local versions
-	versions=($(pyenv versions --bare --skip-aliases | grep -v "/"))
+function select_version() {
+	local prompt_text=$1
+    shift 1
+    local versions=("$@")
 
-	if [ ${#versions[@]} -eq 0 ]; then
-		die "No Python interpreters found. Please install one first."
-	fi
-
-	print "Please enter the Python interpreter to use"
+	print "$prompt_text"
 	for i in "${!versions[@]}"; do
 		print "$i. ${versions[i]}"
 	done
 
-	local python_version
-    local default_selected=$((${#versions[@]} - 1))
+	local chosen_version
+	local default_selected=$((${#versions[@]} - 1))
 	while true; do
-        read -p "Please select ($default_selected): " selected
+		read -p "Please select ($default_selected): " selected
 		if [ -z "$selected" ]; then
-            selected=$default_selected
+			selected=$default_selected
 		fi
 
 		if [ "$selected" -ge 0 ] 2>/dev/null && [ "$selected" -lt "${#versions[@]}" ] 2>/dev/null; then
-			python_version="${versions[selected]}"
+			chosen_version="${versions[selected]}"
 			break
 		else
 			print "Invalid selection. Please try again."
 		fi
 	done
 
-	echo "$python_version"
+	echo "$chosen_version"
+}
+
+function get_python_versions() {
+	pyenv versions --bare --skip-aliases | grep -v "/"
 }
 
 function install() {
@@ -136,8 +144,14 @@ function install() {
 		install_package_in_venv "$package" "$venv_name"
 		add_venv_to_global "$venv_name"
 	else
+		local versions=($(get_python_versions))
+		check_python "${versions[@]}"
 		local python_version
-		python_version=$(select_python_version)
+		python_version=$(
+			select_version \
+				"Please enter the Python interpreter to use with '$package'" \
+				"${versions[@]}"
+		)
 		create_venv "$venv_name" "$python_version"
 		install_package_in_venv "$package" "$venv_name"
 		add_venv_to_global "$venv_name"
