@@ -108,10 +108,11 @@ function select_python_version {
 	done
 
 	local python_version
+    local default_selected=$((${#versions[@]} - 1))
 	while true; do
-		read -p "Please select (0): " selected
+        read -p "Please select ($default_selected): " selected
 		if [ -z "$selected" ]; then
-			selected="0"
+            selected=$default_selected
 		fi
 
 		if [ "$selected" -ge 0 ] 2>/dev/null && [ "$selected" -lt "${#versions[@]}" ] 2>/dev/null; then
