@@ -15,26 +15,24 @@ function die() {
 	exit 1
 }
 
-function check_pyenv_in_path() {
+function verify_pyenv_in_path_or_die() {
 	if ! command -v pyenv &>/dev/null; then
 		die "'pyenv' not found. Please install it first."
 	fi
 }
 
-function check_pyenv_virtualenv_module() {
+function verify_pyenv_virtualenv_module_or_die() {
 	if ! command -v pyenv virtualenv &>/dev/null; then
 		die "'pyenv virtualenv' not found. Please install it first."
 	fi
 }
 
-function check_python() {
-    local versions=("$@")
-	if [ ${#versions[@]} -eq 0 ]; then
-		die "No Python interpreters found. Please install one first."
-	fi
+function is_virtualenv() {
+	local venv_name="$1"
+	pyenv virtualenvs --bare --skip-aliases | grep "^.*/$venv_name$"
 }
 
-function check_package_name() {
+function verify_package_name_or_die() {
 	local package=$1
 
 	local response
@@ -50,12 +48,18 @@ function create_venv() {
 	local venv_name=$1
 	local python_version=$2
 
-	if ! pyenv versions --bare | grep "$python_version" &>/dev/null; then
-		die "Error: Python version '$python_version' not found"
-	fi
-
-	pyenv virtualenv "$python_version" "$venv_name" || die "Failed to create virtual environment"
+	pyenv virtualenv "$python_version" "$venv_name"
 	log "Virtual environment '$venv_name' was created"
+}
+
+function install_package_in_venv() {
+	local package=$1
+	local venv_name=$2
+
+	pyenv activate "$venv_name"
+	pip install --upgrade "$package"
+	log "Package '$package' was installed successfully in '$venv_name' virtual environment"
+	pyenv deactivate
 }
 
 function add_venv_to_global() {
@@ -65,7 +69,7 @@ function add_venv_to_global() {
 	global_envs=$(pyenv global)
 
 	if ! echo "$global_envs" | grep -F "$venv_name" &>/dev/null; then
-		pyenv global $global_envs $venv_name || die "Failed to add virtual environment to global"
+		pyenv global $global_envs $venv_name
 		log "Virtual environment '$venv_name' now in global"
 	else
 		log "Virtual environment '$venv_name' already in global"
@@ -80,31 +84,17 @@ function remove_venv_from_global() {
 
 	if echo "$global_envs" | grep -F "$venv_name" &>/dev/null; then
 		global_envs=$(echo "$global_envs" | grep -v "$venv_name")
-		pyenv global $global_envs || die "Failed to remove virtual environment '$venv_name' from global"
+		pyenv global $global_envs
 		log "Virtual environment '$venv_name' was removed from global"
 	else
 		log "There is no '$venv_name' virtual environment in global"
 	fi
 }
 
-function install_package_in_venv() {
-	local package=$1
-	local venv_name=$2
-
-	if ! pyenv virtualenvs --bare | grep "$venv_name" &>/dev/null; then
-		die "Error: Virtual environment '$venv_name' doesn't exist"
-	fi
-
-	pyenv activate "$venv_name" || die "Failed to activate virtual environment '$venv_name'"
-	pip install --upgrade "$package" || die "Failed to install and upgrade package '$package'"
-	log "Package '$package' was installed successfully in '$venv_name' virtual environment"
-	pyenv deactivate
-}
-
 function select_version() {
 	local prompt_text=$1
-    shift 1
-    local versions=("$@")
+	shift 1
+	local versions=("$@")
 
 	print "$prompt_text"
 	for i in "${!versions[@]}"; do
@@ -130,22 +120,27 @@ function select_version() {
 	echo "$chosen_version"
 }
 
-function get_python_versions() {
-	pyenv versions --bare --skip-aliases | grep -v "/"
+function get_python_versions_or_die() {
+	local versions=("$(pyenv versions --bare --skip-aliases | grep -v "/")")
+
+	if [ ${#versions[@]} -eq 0 ]; then
+		die "No Python interpreters found. Please install one first."
+	fi
+
+	echo "${versions[@]}"
 }
 
 function install() {
 	local package=$1
 	local venv_name="$package"
 
-	check_package_name "$package"
+	verify_package_name_or_die "$package"
 
-	if pyenv virtualenvs --bare | grep "$venv_name" &>/dev/null; then
+	if is_virtualenv "$venv_name"; then
 		install_package_in_venv "$package" "$venv_name"
 		add_venv_to_global "$venv_name"
 	else
-		local versions=($(get_python_versions))
-		check_python "${versions[@]}"
+		local versions=($(get_python_versions_or_die))
 		local python_version
 		python_version=$(
 			select_version \
@@ -161,18 +156,13 @@ function install() {
 function uninstall() {
 	local venv_name=$1
 
-	if pyenv virtualenvs --bare | grep "$venv_name" &>/dev/null; then
+	pyenv virtualenv-delete "$venv_name" &&
 		remove_venv_from_global "$venv_name"
-		pyenv virtualenv-delete "$venv_name" || die "Failed to delete virtual environment '$venv_name'"
-		log "Virtual environment '$venv_name' was deleted successfully"
-	else
-		log "Virtual environment '$venv_name' doesn't exist"
-	fi
 }
 
 function main() {
-	check_pyenv_in_path
-	check_pyenv_virtualenv_module
+	verify_pyenv_in_path_or_die
+	verify_pyenv_virtualenv_module_or_die
 
 	eval "$(pyenv init -)"
 	eval "$(pyenv virtualenv-init -)"
