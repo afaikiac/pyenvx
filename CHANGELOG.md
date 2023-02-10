@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [v1.0.1](https://github.com/afaikiac/pyenvx/releases/tag/v1.0.1) - 2023-02-10
+
+### Fixed
+
+- Refactored the script
+
 ## [v1.0.0](https://github.com/afaikiac/pyenvx/releases/tag/v1.0.0) - 2023-02-10
 
 ### Added
