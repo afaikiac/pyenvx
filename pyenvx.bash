@@ -133,6 +133,7 @@ function install() {
 
 	if pyenv virtualenvs --bare | grep "$venv_name" &>/dev/null; then
 		install_package_in_venv "$package" "$venv_name"
+		add_venv_to_global "$venv_name"
 	else
 		local python_version
 		python_version=$(select_python_version)
