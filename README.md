@@ -25,9 +25,9 @@ pyenvx uninstall virtual_evironment_name [virtual_evironment_name ...]
 ### Installing a package
 
 ```bash
-$ pyenvx install 3.11.1 pdm poetry
-# This script installs python_version specified with pyenv then
-# creates a separate virtual environment for each package:
+$ pyenvx install pdm poetry
+# This script creates a separate virtual environment with Python interpreter
+# that you'll specified in prompt for each package:
 #     package_name (e.g. pdm, poetry virtual environments)
 # The package is then installed in the corresponding environment.
 # Finally, the environment is added to the global pyenv setup.
@@ -38,7 +38,7 @@ $ poetry init
 
 ```bash
 # To update the package, simply run the command again.
-$ pyenvx install 3.11.1 pdm
+$ pyenvx install pdm
 ```
 
 ### Uninstalling a package

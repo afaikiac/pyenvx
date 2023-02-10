@@ -2,28 +2,32 @@
 
 set -euo pipefail
 
-log() {
-	echo "$(date +"%Y-%m-%d %T") [$(basename "$0")] $1"
+function print() {
+	echo "$@" &>/dev/tty
 }
 
-die() {
+function log() {
+	echo "[$(basename "$0")] $1" &>/dev/tty
+}
+
+function die() {
 	log "$@"
 	exit 1
 }
 
-check_pyenv_in_path() {
+function check_pyenv_in_path() {
 	if ! command -v pyenv &>/dev/null; then
 		die "'pyenv' not found. Please install it first."
 	fi
 }
 
-check_pyenv_virtualenv_module() {
+function check_pyenv_virtualenv_module() {
 	if ! command -v pyenv virtualenv &>/dev/null; then
 		die "'pyenv virtualenv' not found. Please install it first."
 	fi
 }
 
-check_package_name() {
+function check_package_name() {
 	local package=$1
 
 	local response
@@ -35,7 +39,7 @@ check_package_name() {
 	log "Package '$package' found in PyPI"
 }
 
-create_venv() {
+function create_venv() {
 	local venv_name=$1
 	local python_version=$2
 
@@ -47,7 +51,7 @@ create_venv() {
 	log "Virtual environment '$venv_name' was created"
 }
 
-add_venv_to_global() {
+function add_venv_to_global() {
 	local venv_name=$1
 
 	local global_envs
@@ -61,7 +65,7 @@ add_venv_to_global() {
 	fi
 }
 
-remove_venv_from_global() {
+function remove_venv_from_global() {
 	local venv_name=$1
 
 	local global_envs
@@ -76,7 +80,7 @@ remove_venv_from_global() {
 	fi
 }
 
-install_package_in_venv() {
+function install_package_in_venv() {
 	local package=$1
 	local venv_name=$2
 
@@ -90,7 +94,38 @@ install_package_in_venv() {
 	pyenv deactivate
 }
 
-install() {
+function select_python_version {
+	local versions
+	versions=($(pyenv versions --bare --skip-aliases | grep -v "/"))
+
+	if [ ${#versions[@]} -eq 0 ]; then
+		die "No Python interpreters found. Please install one first."
+	fi
+
+	print "Please enter the Python interpreter to use"
+	for i in "${!versions[@]}"; do
+		print "$i. ${versions[i]}"
+	done
+
+	local python_version
+	while true; do
+		read -p "Please select (0): " selected
+		if [ -z "$selected" ]; then
+			selected="0"
+		fi
+
+		if [ "$selected" -ge 0 ] 2>/dev/null && [ "$selected" -lt "${#versions[@]}" ] 2>/dev/null; then
+			python_version="${versions[selected]}"
+			break
+		else
+			print "Invalid selection. Please try again."
+		fi
+	done
+
+	echo "$python_version"
+}
+
+function install() {
 	local package=$1
 	local python_version=$2
 	local venv_name="$package"
@@ -106,7 +141,7 @@ install() {
 	fi
 }
 
-uninstall() {
+function uninstall() {
 	local venv_name=$1
 
 	if pyenv virtualenvs --bare | grep "$venv_name" &>/dev/null; then
@@ -118,7 +153,7 @@ uninstall() {
 	fi
 }
 
-main() {
+function main() {
 	check_pyenv_in_path
 	check_pyenv_virtualenv_module
 
@@ -130,9 +165,8 @@ main() {
 
 	case "$command" in
 	install)
-		local python_version=$1
-		shift 1
-		pyenv install --skip-existing "$python_version" || die "Failed to install python version"
+		local python_version
+		python_version=$(select_python_version)
 		for package in "$@"; do
 			install "$package" "$python_version"
 		done
@@ -146,8 +180,8 @@ main() {
 		local script_name
 		script_name=$(basename "$0")
 		echo "Usage:"
-		echo "    $script_name install python_version package_name [package_name ...]"
-		echo "    $script_name uninstall virtual_evironment_name [virtual_evironment_name ...]"
+		echo "$script_name install package_name [package_name ...]"
+		echo "$script_name uninstall virtual_evironment_name [virtual_evironment_name ...]"
 		exit 1
 		;;
 	esac
