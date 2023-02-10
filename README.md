@@ -26,8 +26,8 @@ pyenvx uninstall virtual_evironment_name [virtual_evironment_name ...]
 
 ```bash
 $ pyenvx install pdm poetry
-# This script creates a separate virtual environment with Python interpreter
-# that you'll specified in prompt for each package:
+# This script creates a separate virtual environment with the Python interpreter
+# that you specify in the prompt for each package:
 #     package_name (e.g. pdm, poetry virtual environments)
 # The package is then installed in the corresponding environment.
 # Finally, the environment is added to the global pyenv setup.
