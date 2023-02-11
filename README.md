@@ -90,4 +90,5 @@ And start enjoying the convenience of managing your packages with `pyenv`!
 
 ## TODO
 
+- Store venvs list in separate file and merge it with `pyenv global`
 - Write `pyenv` module.
