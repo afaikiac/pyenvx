@@ -10,9 +10,7 @@ The creation of this script was inspired by `pipx` but it does not disrupt my `p
 ## Installation
 
 ```bash
-git clone https://github.com/afaikiac/pyenvx.git
-cp pyenvx/pyenvx.bash ~/bin/pyenvx
-chmod +x ~/bin/pyenvx
+FILE="~/.local/bin/pyenvx" bash -c "curl -fsSl https://raw.githubusercontent.com/afaikiac/pyenvx/main/pyenvx.bash -o $FILE && chmod +x $FILE && echo 'pyenvx was installed!'"
 ```
 
 ## Usage
@@ -59,7 +57,7 @@ $ pyenvx uninstall pdm poetry
 
 ## Configuration
 
-To make use of CLI tools more convenient, you can add the `pyenv` shims folder to your `$PATH` by adding this line to your shell configuration:
+To make use of CLI tools more convenient, you can add the `pyenv` shims folder to your `$PATH`:
 
 ```bash
 export PATH=$PYENV_ROOT/shims:$PATH"
@@ -67,12 +65,10 @@ export PATH=$PYENV_ROOT/shims:$PATH"
 
 Shell completions for CLI tools can be added manually, depending on your preferred shell.
 
-I like when packages follow the XDG standard, so I add the following to my `~/.profile`:
+I like when packages follow the XDG standard, so I have the following in my `~/.profile`:
 
 ``` bash
 export XDG_DATA_HOME=$HOME/.local/share
-export PATH=$HOME/bin:$PATH
-export PATH=$HOME/.local/bin:$PATH
 
 if command -v pyenv &>/dev/null; then
   export PYENV_ROOT="$XDG_DATA_HOME/pyenv"
