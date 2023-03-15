@@ -29,12 +29,13 @@ function verify_pyenv_virtualenv_module_or_die() {
 
 function is_virtualenv() {
 	local venv_name="$1"
-	pyenv virtualenvs --bare --skip-aliases | grep "^.*/$venv_name$"
+	pyenv virtualenvs --bare --skip-aliases | grep "^.*/$venv_name$" &> /dev/null
+}
+
 }
 
 function verify_package_name_or_die() {
 	local package=$1
-
 	local response
 	response=$(curl -s -o /dev/null -w "%{http_code}" https://pypi.org/project/"$package"/)
 
@@ -64,30 +65,17 @@ function install_package_in_venv() {
 
 function is_venv_in_global() {
 	local venv_name=$1
-	
-	local global_envs
-	global_envs=$(pyenv global)
-
-	echo "$global_envs" | grep "^${venv_name}$" &>/dev/null
+	pyenv global | grep "^${venv_name}$" &>/dev/null
 }
 
 function add_venv_to_global() {
 	local venv_name=$1
-
-	local global_envs
-	global_envs=$(pyenv global)
-
-	pyenv global $global_envs $venv_name
+	pyenv global $(pyenv global) $venv_name
 }
 
 function remove_venv_from_global() {
 	local venv_name=$1
-
-	local global_envs
-	global_envs=$(pyenv global)
-
-	global_envs=$(echo "$global_envs" | grep -v "$venv_name")
-	pyenv global $global_envs
+	pyenv global $(pyenv global | grep -v "^${venv_name}$")
 }
 
 function prompt_select_version() {
@@ -131,47 +119,62 @@ function get_python_versions_or_die() {
 
 function install() {
 	local package=$1
-	local venv_name="$package"
+	local venv_name=$2
 
-	verify_package_name_or_die "$package"
+	local versions=($(get_python_versions_or_die))
+	local python_version
+	python_version=$(
+		prompt_select_version \
+			"Please enter the Python interpreter to use with '$package'" \
+			"${versions[@]}"
+	)
+	create_venv "$venv_name" "$python_version"
+	install_package_in_venv "$package" "$venv_name"
+	if ! is_venv_in_global "$venv_name"; then
+		add_venv_to_global "$venv_name"
+	fi
+}
 
-	if is_virtualenv "$venv_name"; then
-		install_package_in_venv "$package" "$venv_name"
-		if ! is_venv_in_global "$venv_name"; then
-			add_venv_to_global "$venv_name"
-		fi
-	else
-		local versions=($(get_python_versions_or_die))
-		local python_version
-		python_version=$(
-			prompt_select_version \
-				"Please enter the Python interpreter to use with '$package'" \
-				"${versions[@]}"
-		)
-		create_venv "$venv_name" "$python_version"
-		install_package_in_venv "$package" "$venv_name"
-		if ! is_venv_in_global "$venv_name"; then
-			add_venv_to_global "$venv_name"
-		fi
+function update() {
+	local package=$1
+	local venv_name=$2
+
+	install_package_in_venv "$package" "$venv_name"
+	if ! is_venv_in_global "$venv_name"; then
+		add_venv_to_global "$venv_name"
 	fi
 }
 
 function uninstall() {
 	local venv_name=$1
-	
-	pyenv virtualenv-delete --force "$venv_name"
+
 	if is_venv_in_global "$venv_name"; then
 		remove_venv_from_global "$venv_name"
 	fi
-	log "Virtual environment '$venv_name' was removed"
+	pyenv virtualenv-delete --force "$venv_name"
+	log "Virtual environment '$venv_name' was uninstalled"
 }
 
-function main() {
+function setup_pyenv_or_die() {
 	verify_pyenv_in_path_or_die
 	verify_pyenv_virtualenv_module_or_die
 
 	eval "$(pyenv init -)"
 	eval "$(pyenv virtualenv-init -)"
+}
+
+function print_help() {
+	local script_name
+	script_name=$(basename "$0")
+	print "Usage:"
+	print "$script_name install package_name [package_name ...]"
+	# print "$script_name uninstall virtual_evironment_name [virtual_evironment_name ...]"
+}
+
+function main() {
+	setup_pyenv_or_die
+
+	local VENV_PREFIX=""
 
 	local command=$1
 	shift 1
@@ -179,22 +182,37 @@ function main() {
 	case "$command" in
 	install)
 		for package in "$@"; do
-			install "$package"
+			verify_package_name_or_die "$package"
+			local venv_name="$VENV_PREFIX$package"
+			if ! is_virtualenv "$venv_name"; then
+				install "$package" "$venv_name"
+			else
+				update "$package" "$venv_name"
+			fi
 		done
 		;;
 	uninstall)
-		for venv_name in "$@"; do
+		for package in "$@"; do
+			local venv_name="$VENV_PREFIX$package"
 			if is_virtualenv "$venv_name"; then
 				uninstall "$venv_name"
+			else
+				log "Virtual environment '$venv_name' not found."
+			fi
+		done
+		;;
+	update)
+		for package in "$@"; do
+			local venv_name="$VENV_PREFIX$package"
+			if is_virtualenv "$venv_name"; then
+				update "$package" "$venv_name"
+			else
+				log "Virtual environment '$venv_name' not found."
 			fi
 		done
 		;;
 	*)
-		local script_name
-		script_name=$(basename "$0")
-		echo "Usage:"
-		echo "$script_name install package_name [package_name ...]"
-		echo "$script_name uninstall virtual_evironment_name [virtual_evironment_name ...]"
+		print_help
 		exit 1
 		;;
 	esac
