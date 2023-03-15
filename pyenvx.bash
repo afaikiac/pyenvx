@@ -62,18 +62,22 @@ function install_package_in_venv() {
 	pyenv deactivate
 }
 
+function is_venv_in_global() {
+	local venv_name=$1
+	
+	local global_envs
+	global_envs=$(pyenv global)
+
+	echo "$global_envs" | grep "^${venv_name}$" &>/dev/null
+}
+
 function add_venv_to_global() {
 	local venv_name=$1
 
 	local global_envs
 	global_envs=$(pyenv global)
 
-	if ! echo "$global_envs" | grep -F "$venv_name" &>/dev/null; then
-		pyenv global $global_envs $venv_name
-		log "Virtual environment '$venv_name' now in global"
-	else
-		log "Virtual environment '$venv_name' already in global"
-	fi
+	pyenv global $global_envs $venv_name
 }
 
 function remove_venv_from_global() {
@@ -82,16 +86,11 @@ function remove_venv_from_global() {
 	local global_envs
 	global_envs=$(pyenv global)
 
-	if echo "$global_envs" | grep -F "$venv_name" &>/dev/null; then
-		global_envs=$(echo "$global_envs" | grep -v "$venv_name")
-		pyenv global $global_envs
-		log "Virtual environment '$venv_name' was removed from global"
-	else
-		log "There is no '$venv_name' virtual environment in global"
-	fi
+	global_envs=$(echo "$global_envs" | grep -v "$venv_name")
+	pyenv global $global_envs
 }
 
-function select_version() {
+function prompt_select_version() {
 	local prompt_text=$1
 	shift 1
 	local versions=("$@")
@@ -138,26 +137,33 @@ function install() {
 
 	if is_virtualenv "$venv_name"; then
 		install_package_in_venv "$package" "$venv_name"
-		add_venv_to_global "$venv_name"
+		if ! is_venv_in_global "$venv_name"; then
+			add_venv_to_global "$venv_name"
+		fi
 	else
 		local versions=($(get_python_versions_or_die))
 		local python_version
 		python_version=$(
-			select_version \
+			prompt_select_version \
 				"Please enter the Python interpreter to use with '$package'" \
 				"${versions[@]}"
 		)
 		create_venv "$venv_name" "$python_version"
 		install_package_in_venv "$package" "$venv_name"
-		add_venv_to_global "$venv_name"
+		if ! is_venv_in_global "$venv_name"; then
+			add_venv_to_global "$venv_name"
+		fi
 	fi
 }
 
 function uninstall() {
 	local venv_name=$1
-
-	pyenv virtualenv-delete "$venv_name" &&
+	
+	pyenv virtualenv-delete --force "$venv_name"
+	if is_venv_in_global "$venv_name"; then
 		remove_venv_from_global "$venv_name"
+	fi
+	log "Virtual environment '$venv_name' was removed"
 }
 
 function main() {
@@ -178,7 +184,9 @@ function main() {
 		;;
 	uninstall)
 		for venv_name in "$@"; do
-			uninstall "$venv_name"
+			if is_virtualenv "$venv_name"; then
+				uninstall "$venv_name"
+			fi
 		done
 		;;
 	*)
