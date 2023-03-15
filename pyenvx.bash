@@ -165,8 +165,9 @@ function print_help() {
 	local script_name
 	script_name=$(basename "$0")
 	print "Usage:"
-	print "$script_name install package_name [package_name ...]"
-	# print "$script_name uninstall virtual_evironment_name [virtual_evironment_name ...]"
+	print "$script_name install package [package ...]"
+	print "$script_name update package [package ...]"
+	print "$script_name uninstall package [package ...]"
 }
 
 function main() {
@@ -177,8 +178,8 @@ function main() {
 		exit 1
 	fi
 
-	# local VENV_PREFIX="pyenvx-"
-	local VENV_PREFIX=""
+	local VENV_PREFIX="pyenvx-"
+	# local VENV_PREFIX=""
 
 	local command=$1
 	shift 1
@@ -195,21 +196,21 @@ function main() {
 			fi
 		done
 		;;
-	uninstall)
-		for package in "$@"; do
-			local venv_name="$VENV_PREFIX$package"
-			if is_virtualenv "$venv_name"; then
-				uninstall "$venv_name"
-			else
-				log "Virtual environment '$venv_name' not found."
-			fi
-		done
-		;;
 	update)
 		for package in "$@"; do
 			local venv_name="$VENV_PREFIX$package"
 			if is_virtualenv "$venv_name"; then
 				update "$package" "$venv_name"
+			else
+				log "Virtual environment '$venv_name' not found."
+			fi
+		done
+		;;
+	uninstall)
+		for package in "$@"; do
+			local venv_name="$VENV_PREFIX$package"
+			if is_virtualenv "$venv_name"; then
+				uninstall "$venv_name"
 			else
 				log "Virtual environment '$venv_name' not found."
 			fi
