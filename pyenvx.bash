@@ -174,6 +174,7 @@ function print_help() {
 function main() {
 	setup_pyenv_or_die
 
+	# local VENV_PREFIX="pyenvx-"
 	local VENV_PREFIX=""
 
 	local command=$1
