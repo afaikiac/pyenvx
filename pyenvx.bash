@@ -29,9 +29,7 @@ function verify_pyenv_virtualenv_module_or_die() {
 
 function is_virtualenv() {
 	local venv_name="$1"
-	pyenv virtualenvs --bare --skip-aliases | grep "^.*/$venv_name$" &> /dev/null
-}
-
+	pyenv virtualenvs --bare --skip-aliases | grep "^.*/$venv_name$" &>/dev/null
 }
 
 function verify_package_name_or_die() {
@@ -65,7 +63,7 @@ function install_package_in_venv() {
 
 function is_venv_in_global() {
 	local venv_name=$1
-	pyenv global | grep "^${venv_name}$" &>/dev/null
+	pyenv global | grep "^$venv_name$" &>/dev/null
 }
 
 function add_venv_to_global() {
@@ -75,7 +73,7 @@ function add_venv_to_global() {
 
 function remove_venv_from_global() {
 	local venv_name=$1
-	pyenv global $(pyenv global | grep -v "^${venv_name}$")
+	pyenv global $(pyenv global | grep -v "^$venv_name$")
 }
 
 function prompt_select_version() {
@@ -173,6 +171,11 @@ function print_help() {
 
 function main() {
 	setup_pyenv_or_die
+
+	if [ $# -eq 0 ]; then
+		print_help
+		exit 1
+	fi
 
 	# local VENV_PREFIX="pyenvx-"
 	local VENV_PREFIX=""
