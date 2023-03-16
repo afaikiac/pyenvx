@@ -22,31 +22,34 @@ pyenvx --help
 
 ```plain
 Usage:
-  pyenvx <command> [arguments]
+  pyenvx.bash <command> [arguments]
 
 Commands:
   install     Install the specified package(s) in separate virtual environments.
+              And add virtual environment to global.
               If a virtual environment for a package already exists, it will be updated.
-              Usage: pyenvx install package1 [package2 ...]
+              Usage: pyenvx.bash install package1 [package2 ...]
 
   update      Update the specified package(s) in their respective virtual environments.
-              Usage: pyenvx update package1 [package2 ...]
+              And add virtual environment to global.
+              Usage: pyenvx.bash update package1 [package2 ...]
 
   uninstall   Uninstall the specified package(s) by deleting their respective virtual environments.
-              Usage: pyenvx uninstall package1 [package2 ...]
+              And remove virtual environment from global.
+              Usage: pyenvx.bash uninstall package1 [package2 ...]
 
   virtualenvs Show a list of all virtual environments managed by this script.
 
   --help, -h  Display this help message.
 
 Examples:
-  pyenvx install pdm poetry
-  pyenvx update pdm
-  pyenvx uninstall pdm
-  pyenvx virtualenvs
+  pyenvx.bash install pdm poetry
+  pyenvx.bash update pdm
+  pyenvx.bash uninstall pdm
+  pyenvx.bash virtualenvs
 
 Notes:
-  - A virtual environment for each package will be created with a 'pyenvx-' prefix.```
+  - A virtual environment for each package will be created with a 'pyenvx-' prefix.
 ```
 
 For instance, if you would like to add system Python and all `pyenvx` virtual environments to the global, use the following command:

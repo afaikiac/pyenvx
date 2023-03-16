@@ -185,13 +185,16 @@ Usage:
 
 Commands:
   $(tput bold)install$(tput sgr0)     Install the specified package(s) in separate virtual environments.
+              And add virtual environment to global.
               If a virtual environment for a package already exists, it will be updated.
               Usage: $script_name install package1 [package2 ...]
 
   $(tput bold)update$(tput sgr0)      Update the specified package(s) in their respective virtual environments.
+              And add virtual environment to global.
               Usage: $script_name update package1 [package2 ...]
 
   $(tput bold)uninstall$(tput sgr0)   Uninstall the specified package(s) by deleting their respective virtual environments.
+              And remove virtual environment from global.
               Usage: $script_name uninstall package1 [package2 ...]
 
   $(tput bold)virtualenvs$(tput sgr0) Show a list of all virtual environments managed by this script.
