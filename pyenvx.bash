@@ -194,7 +194,7 @@ Commands:
   $(tput bold)uninstall$(tput sgr0)   Uninstall the specified package(s) by deleting their respective virtual environments.
               Usage: $script_name uninstall package1 [package2 ...]
 
-  $(tput bold)global$(tput sgr0)      Show a list of all virtual environments managed by this script.
+  $(tput bold)virtualenvs$(tput sgr0) Show a list of all virtual environments managed by this script.
 
   $(tput bold)--help, -h$(tput sgr0)  Display this help message.
 
@@ -202,15 +202,17 @@ Examples:
   $script_name install pdm poetry
   $script_name update pdm
   $script_name uninstall pdm
-  $script_name global
+  $script_name virtualenvs
 
 Notes:
   - A virtual environment for each package will be created with a '$venv_prefix' prefix.
+
+More information: https://github.com/afaikiac/pyenvx
 EOF
 }
 
 function main() {
-	local VENVS_FILE="${XDG_DATA_HOME:-"$HOME/.local/share"}/pyenvx/venvs"
+	local VENVS_FILE="${XDG_DATA_HOME:-"$HOME/.local/share"}/pyenvx/virtualenvs"
 	local VENV_PREFIX="pyenvx-"
 
 	setup_pyenv_or_die
@@ -262,9 +264,9 @@ function main() {
 			fi
 		done
 		;;
-	global)
+	virtualenvs)
 		update_venv_list_in_file "$VENVS_FILE"
-		cat "$VENVS_FILE" &>/dev/tty
+		cat "$VENVS_FILE"
 		;;
 	--help | -h | *)
 		print_help "$(basename "$0")" "$VENV_PREFIX"
