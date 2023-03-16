@@ -61,48 +61,48 @@ function install_package_in_venv() {
 	pyenv deactivate
 }
 
-function is_venv_in_global() {
-	local venv_name=$1
-	pyenv global | grep "^$venv_name$" &>/dev/null
+function is_line_in_global() {
+	local line=$1
+	pyenv global | grep "^$line$" &>/dev/null
 }
 
-function add_venv_to_global() {
-	local venv_name=$1
-	pyenv global $(pyenv global) $venv_name
+function add_line_to_global() {
+	local line=$1
+	pyenv global $(pyenv global) $line
 }
 
-function remove_venv_from_global() {
-	local venv_name=$1
-	pyenv global $(pyenv global | grep -v "^$venv_name$")
+function remove_line_from_global() {
+	local line=$1
+	pyenv global $(pyenv global | grep -v "^$line$")
 }
 
-function prompt_select_version() {
+function prompt_select_item() {
 	local prompt_text=$1
 	shift 1
-	local versions=("$@")
+	local items=("$@")
 
 	print "$prompt_text"
-	for i in "${!versions[@]}"; do
-		print "$i. ${versions[i]}"
+	for i in "${!items[@]}"; do
+		print "$i. ${items[i]}"
 	done
 
-	local chosen_version
-	local default_selected=$((${#versions[@]} - 1))
+	local chosen_item
+	local default_selected=$((${#items[@]} - 1))
 	while true; do
 		read -p "Please select ($default_selected): " selected
 		if [ -z "$selected" ]; then
 			selected=$default_selected
 		fi
 
-		if [ "$selected" -ge 0 ] 2>/dev/null && [ "$selected" -lt "${#versions[@]}" ] 2>/dev/null; then
-			chosen_version="${versions[selected]}"
+		if [ "$selected" -ge 0 ] 2>/dev/null && [ "$selected" -lt "${#items[@]}" ] 2>/dev/null; then
+			chosen_item="${items[selected]}"
 			break
 		else
 			print "Invalid selection. Please try again."
 		fi
 	done
 
-	echo "$chosen_version"
+	echo "$chosen_item"
 }
 
 function get_python_versions_or_die() {
@@ -122,8 +122,8 @@ function install() {
 
 	create_venv "$venv_name" "$python_version"
 	install_package_in_venv "$package" "$venv_name"
-	if ! is_venv_in_global "$venv_name"; then
-		add_venv_to_global "$venv_name"
+	if ! is_line_in_global "$venv_name"; then
+		add_line_to_global "$venv_name"
 	fi
 }
 
@@ -132,16 +132,16 @@ function update() {
 	local venv_name=$2
 
 	install_package_in_venv "$package" "$venv_name"
-	if ! is_venv_in_global "$venv_name"; then
-		add_venv_to_global "$venv_name"
+	if ! is_line_in_global "$venv_name"; then
+		add_line_to_global "$venv_name"
 	fi
 }
 
 function uninstall() {
 	local venv_name=$1
 
-	if is_venv_in_global "$venv_name"; then
-		remove_venv_from_global "$venv_name"
+	if is_line_in_global "$venv_name"; then
+		remove_line_from_global "$venv_name"
 	fi
 	pyenv virtualenv-delete --force "$venv_name"
 	log "Virtual environment '$venv_name' was uninstalled"
@@ -187,7 +187,7 @@ function main() {
 				local python_versions=($(get_python_versions_or_die))
 				local python_version
 				python_version=$(
-					prompt_select_version \
+					prompt_select_item \
 						"Please enter the Python interpreter to use with '$package'" \
 						"${python_versions[@]}"
 				)
