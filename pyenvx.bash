@@ -119,7 +119,9 @@ function install() {
 	local package=$1
 	local venv_name=$2
 	local python_version=$3
+	local venv_file=$4
 
+	echo "$venv_name" >> "$venv_file"
 	create_venv "$venv_name" "$python_version"
 	install_package_in_venv "$package" "$venv_name"
 	if ! is_line_in_global "$venv_name"; then
@@ -130,7 +132,9 @@ function install() {
 function update() {
 	local package=$1
 	local venv_name=$2
-
+	local venv_file=$3
+	
+	echo "$venv_name" >> "$venv_file"
 	install_package_in_venv "$package" "$venv_name"
 	if ! is_line_in_global "$venv_name"; then
 		add_line_to_global "$venv_name"
@@ -145,6 +149,19 @@ function uninstall() {
 	fi
 	pyenv virtualenv-delete --force "$venv_name"
 	log "Virtual environment '$venv_name' was uninstalled"
+}
+
+function update_venv_list_in_file() {
+	local file_fullpath=$1
+	local venvs
+
+    while IFS= read -r line; do
+        if is_virtualenv "$line"; then
+            venvs+=("$line")
+        fi
+    done < "$file_fullpath"
+
+    printf "%s\n" "${venvs[@]}" > "$file_fullpath"
 }
 
 function setup_pyenv_or_die() {
@@ -165,11 +182,14 @@ function print_help() {
 }
 
 function main() {
+	local VENVS_FILE="$XDG_DATA_HOME/pyenvx/venvs"
 	local VENV_PREFIX="pyenvx-"
-	# local VENV_PREFIX=""
 
 	setup_pyenv_or_die
 
+	if ! [[ -e "$VENVS_FILE" ]]; then
+		mkdir -p "$(dirname "$VENVS_FILE")"
+    	touch "$VENVS_FILE"
 	fi
 
 	local command=${1:-"--help"}; shift || true
@@ -187,9 +207,9 @@ function main() {
 						"Please enter the Python interpreter to use with '$package'" \
 						"${python_versions[@]}"
 				)
-				install "$package" "$venv_name" "$python_version"
+				install "$package" "$venv_name" "$python_version" "$VENVS_FILE"
 			else
-				update "$package" "$venv_name"
+				update "$package" "$venv_name" "$VENVS_FILE"
 			fi
 		done
 		;;
@@ -197,7 +217,7 @@ function main() {
 		for package in "$@"; do
 			local venv_name="$VENV_PREFIX$package"
 			if is_virtualenv "$venv_name"; then
-				update "$package" "$venv_name"
+				update "$package" "$venv_name" "$VENVS_FILE"
 			else
 				log "Virtual environment '$venv_name' not found."
 			fi
@@ -212,6 +232,10 @@ function main() {
 				log "Virtual environment '$venv_name' not found."
 			fi
 		done
+		;;
+	global)
+		update_venv_list_in_file "$VENVS_FILE"	
+		cat "$VENVS_FILE" &>/dev/tty
 		;;
 	--help|-h|*)
 		print_help
