@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## v2.0.0
+
+### Added
+
+- Added new commands: `update`, `virtualenvs` and `--help | -h`.
+
+- Added a prefix to virtual environments.
+
+- Store all virtual environments in a file.
+
+- Detailed help.
+
+### Fixed
+
+- Refactored the code.
+
+- Corrected the regular expression to handle virtual environment names.
+
 ## [v1.0.1](https://github.com/afaikiac/pyenvx/releases/tag/v1.0.1) - 2023-02-10
 
 ### Fixed
