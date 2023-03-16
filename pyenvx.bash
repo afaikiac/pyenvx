@@ -121,7 +121,7 @@ function install() {
 	local python_version=$3
 	local venv_file=$4
 
-	echo "$venv_name" >> "$venv_file"
+	echo "$venv_name" >>"$venv_file"
 	create_venv "$venv_name" "$python_version"
 	install_package_in_venv "$package" "$venv_name"
 	if ! is_line_in_global "$venv_name"; then
@@ -133,8 +133,8 @@ function update() {
 	local package=$1
 	local venv_name=$2
 	local venv_file=$3
-	
-	echo "$venv_name" >> "$venv_file"
+
+	echo "$venv_name" >>"$venv_file"
 	install_package_in_venv "$package" "$venv_name"
 	if ! is_line_in_global "$venv_name"; then
 		add_line_to_global "$venv_name"
@@ -155,13 +155,13 @@ function update_venv_list_in_file() {
 	local file_fullpath=$1
 	local venvs
 
-    while IFS= read -r line; do
-        if is_virtualenv "$line"; then
-            venvs+=("$line")
-        fi
-    done < "$file_fullpath"
+	while IFS= read -r line; do
+		if is_virtualenv "$line"; then
+			venvs+=("$line")
+		fi
+	done <"$file_fullpath"
 
-    printf "%s\n" "${venvs[@]}" > "$file_fullpath"
+	printf "%s\n" "${venvs[@]}" >"$file_fullpath"
 }
 
 function setup_pyenv_or_die() {
@@ -210,17 +210,18 @@ EOF
 }
 
 function main() {
-	local VENVS_FILE="$XDG_DATA_HOME/pyenvx/venvs"
+	local VENVS_FILE="${XDG_DATA_HOME:-"$HOME/.local/share"}/pyenvx/venvs"
 	local VENV_PREFIX="pyenvx-"
 
 	setup_pyenv_or_die
 
 	if ! [[ -e "$VENVS_FILE" ]]; then
 		mkdir -p "$(dirname "$VENVS_FILE")"
-    	touch "$VENVS_FILE"
+		touch "$VENVS_FILE"
 	fi
 
-	local command=${1:-"--help"}; shift || true
+	local command=${1:-"--help"}
+	shift || true
 
 	case "$command" in
 	install)
@@ -262,7 +263,7 @@ function main() {
 		done
 		;;
 	global)
-		update_venv_list_in_file "$VENVS_FILE"	
+		update_venv_list_in_file "$VENVS_FILE"
 		cat "$VENVS_FILE" &>/dev/tty
 		;;
 	--help | -h | *)
