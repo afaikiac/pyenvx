@@ -156,12 +156,12 @@ function setup_pyenv_or_die() {
 }
 
 function print_help() {
-	local script_name
-	script_name=$(basename "$0")
-	print "Usage:"
-	print "$script_name install package [package ...]"
-	print "$script_name update package [package ...]"
-	print "$script_name uninstall package [package ...]"
+	print "$(basename "$0") 2.0.0-beta"
+	print
+    print "Some useful pyenvx commands are:"
+	print "   install   package [package ...]"
+	print "   update    package [package ...]"
+	print "   uninstall package [package ...]"
 }
 
 function main() {
@@ -191,7 +191,7 @@ function main() {
 						"Please enter the Python interpreter to use with '$package'" \
 						"${python_versions[@]}"
 				)
-				install "$package" "$venv_name" "$python_version" 
+				install "$package" "$venv_name" "$python_version"
 			else
 				update "$package" "$venv_name"
 			fi
