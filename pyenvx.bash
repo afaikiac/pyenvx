@@ -118,14 +118,8 @@ function get_python_versions_or_die() {
 function install() {
 	local package=$1
 	local venv_name=$2
+	local python_version=$3
 
-	local versions=($(get_python_versions_or_die))
-	local python_version
-	python_version=$(
-		prompt_select_version \
-			"Please enter the Python interpreter to use with '$package'" \
-			"${versions[@]}"
-	)
 	create_venv "$venv_name" "$python_version"
 	install_package_in_venv "$package" "$venv_name"
 	if ! is_venv_in_global "$venv_name"; then
@@ -190,7 +184,14 @@ function main() {
 			verify_package_name_or_die "$package"
 			local venv_name="$VENV_PREFIX$package"
 			if ! is_virtualenv "$venv_name"; then
-				install "$package" "$venv_name"
+				local python_versions=($(get_python_versions_or_die))
+				local python_version
+				python_version=$(
+					prompt_select_version \
+						"Please enter the Python interpreter to use with '$package'" \
+						"${python_versions[@]}"
+				)
+				install "$package" "$venv_name" "$python_version" 
 			else
 				update "$package" "$venv_name"
 			fi
