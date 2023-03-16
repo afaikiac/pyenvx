@@ -1,11 +1,12 @@
 # PyenvX
 
-The creation of this script was inspired by `pipx` but it does not disrupt my `pyenv` workflow. I simply want the latest versions of CLI or GUI tools, such as `pdm`, `poetry` or `Anki`, while still utilizing the power of `pyenv`. And I don't want to have to install a massive amount of Python dependencies through my Linux package manager!
+This script is inspired by pipx, but it's designed to work seamlessly with pyenv. It allows you to install and manage the latest versions of CLI or GUI tools, such as pdm, poetry, or Anki, while utilizing the power of pyenv. There's no need to install a massive amount of Python dependencies through your package manager!
 
 ## Requirements
 
 - [`pyenv`](https://github.com/pyenv/pyenv#installation) must be installed and configured.
 - [`pyenv-virtualenv`](https://github.com/pyenv/pyenv-virtualenv#installation) must be installed and integrated with `pyenv`.
+- `curl`
 
 ## Installation
 
@@ -16,43 +17,41 @@ FILE="~/.local/bin/pyenvx" bash -c "curl -fsSl https://raw.githubusercontent.com
 ## Usage
 
 ```bash
-pyenvx install python_version package_name [package_name ...]
-pyenvx uninstall virtual_evironment_name [virtual_evironment_name ...]
+pyenvx --help
 ```
 
-### Installing a package
+```plain
+Usage:
+  pyenvx <command> [arguments]
+
+Commands:
+  install     Install the specified package(s) in separate virtual environments.
+              If a virtual environment for a package already exists, it will be updated.
+              Usage: pyenvx install package1 [package2 ...]
+
+  update      Update the specified package(s) in their respective virtual environments.
+              Usage: pyenvx update package1 [package2 ...]
+
+  uninstall   Uninstall the specified package(s) by deleting their respective virtual environments.
+              Usage: pyenvx uninstall package1 [package2 ...]
+
+  virtualenvs Show a list of all virtual environments managed by this script.
+
+  --help, -h  Display this help message.
+
+Examples:
+  pyenvx install pdm poetry
+  pyenvx update pdm
+  pyenvx uninstall pdm
+  pyenvx virtualenvs
+
+Notes:
+  - A virtual environment for each package will be created with a 'pyenvx-' prefix.```
+
+For instance, if you would like to add system Python and all `pyenvx` virtual environments to the global, use the following command:
 
 ```bash
-$ pyenvx install pdm poetry
-# This script creates a separate virtual environment with the Python interpreter
-# that you specify in the prompt for each package:
-#     package_name (e.g. pdm, poetry virtual environments)
-# The package is then installed in the corresponding environment.
-# Finally, the environment is added to the global pyenv setup.
-# You can now run the programs!
-$ pdm init
-$ poetry init
-```
-
-```bash
-# To update the package, simply run the command again.
-$ pyenvx install pdm
-```
-
-### Uninstalling a package
-
-```bash
-# Check what's in your global setup
-$ pyenv global
-system
-3.11.1
-pdm
-poetry
-$ pyenvx uninstall pdm poetry
-# The script removes these virtual environments 
-# from your global pyenv setup and deletes them permanently. 
-# As a result, the CLI programs in these venvs are no longer
-# available on your computer.
+pyenv global system $(pyenvx virtualenvs)
 ```
 
 ## Configuration
@@ -65,10 +64,10 @@ export PATH=$PYENV_ROOT/shims:$PATH"
 
 Shell completions for CLI tools can be added manually, depending on your preferred shell.
 
-I like when packages follow the XDG standard, so I have the following in my `~/.profile`:
+If you prefer packages to follow the XDG standard, you can configure your `~/.profile` as follows:
 
 ``` bash
-export XDG_DATA_HOME=$HOME/.local/share
+export XDG_DATA_HOME="$HOME/.local/share"
 
 if command -v pyenv &>/dev/null; then
   export PYENV_ROOT="$XDG_DATA_HOME/pyenv"
@@ -83,8 +82,3 @@ pip freeze | awk -v FS='==' '{print $1}' | xargs pip uninstall --yes
 ```
 
 And start enjoying the convenience of managing your packages with `pyenv`!
-
-## TODO
-
-- Store venvs list in separate file and merge it with `pyenv global`
-- Write `pyenv` module.
