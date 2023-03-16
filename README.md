@@ -47,6 +47,7 @@ Examples:
 
 Notes:
   - A virtual environment for each package will be created with a 'pyenvx-' prefix.```
+```
 
 For instance, if you would like to add system Python and all `pyenvx` virtual environments to the global, use the following command:
 
