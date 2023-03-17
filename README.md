@@ -26,16 +26,16 @@ Usage:
 
 Commands:
   install     Install the specified package(s) in separate virtual environments.
-              And add virtual environment to global.
+              And add virtual environments to global.
               If a virtual environment for a package already exists, it will be updated.
               Usage: pyenvx.bash install package1 [package2 ...]
 
   update      Update the specified package(s) in their respective virtual environments.
-              And add virtual environment to global.
+              And add virtual environments to global.
               Usage: pyenvx.bash update package1 [package2 ...]
 
   uninstall   Uninstall the specified package(s) by deleting their respective virtual environments.
-              And remove virtual environment from global.
+              And remove virtual environments from global.
               Usage: pyenvx.bash uninstall package1 [package2 ...]
 
   virtualenvs Show a list of all virtual environments managed by this script.

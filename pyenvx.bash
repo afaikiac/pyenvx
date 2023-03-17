@@ -174,7 +174,7 @@ function print_help() {
 	local script_name=$1
 	local venv_prefix=$2
 	cat <<EOF >/dev/tty
-$(tput bold)$(tput setaf 2)pyenvx 2.0.0$(tput sgr0)
+$(tput bold)$(tput setaf 2)pyenvx 2.0.1$(tput sgr0)
 
 A script to manage Python packages with their own virtual environments using pyenv and pyenv-virtualenv.
 
@@ -183,16 +183,16 @@ Usage:
 
 Commands:
   $(tput bold)install$(tput sgr0)     Install the specified package(s) in separate virtual environments.
-              And add virtual environment to global.
+              And add virtual environments to global.
               If a virtual environment for a package already exists, it will be updated.
               Usage: $script_name install package1 [package2 ...]
 
   $(tput bold)update$(tput sgr0)      Update the specified package(s) in their respective virtual environments.
-              And add virtual environment to global.
+              And add virtual environments to global.
               Usage: $script_name update package1 [package2 ...]
 
   $(tput bold)uninstall$(tput sgr0)   Uninstall the specified package(s) by deleting their respective virtual environments.
-              And remove virtual environment from global.
+              And remove virtual environments from global.
               Usage: $script_name uninstall package1 [package2 ...]
 
   $(tput bold)virtualenvs$(tput sgr0) Show a list of all virtual environments managed by this script.
