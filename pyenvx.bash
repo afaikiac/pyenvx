@@ -176,37 +176,38 @@ function print_help() {
 	cat <<EOF >/dev/tty
 $(tput bold)$(tput setaf 2)pyenvx 2.0.1$(tput sgr0)
 
-A script to manage Python packages with their own virtual environments using pyenv and pyenv-virtualenv.
+A script to manage Python packages with their own virtual environments
+using pyenv and pyenv-virtualenv.
 
 Usage:
-  $script_name <command> [arguments]
-
-Commands:
-  $(tput bold)install$(tput sgr0)     Install the specified package(s) in separate virtual environments.
-              And add virtual environments to global.
-              If a virtual environment for a package already exists, it will be updated.
-              Usage: $script_name install package1 [package2 ...]
-
-  $(tput bold)update$(tput sgr0)      Update the specified package(s) in their respective virtual environments.
-              And add virtual environments to global.
-              Usage: $script_name update package1 [package2 ...]
-
-  $(tput bold)uninstall$(tput sgr0)   Uninstall the specified package(s) by deleting their respective virtual environments.
-              And remove virtual environments from global.
-              Usage: $script_name uninstall package1 [package2 ...]
-
-  $(tput bold)virtualenvs$(tput sgr0) Show a list of all virtual environments managed by this script.
-
-  $(tput bold)--help, -h$(tput sgr0)  Display this help message.
+    $script_name $(tput bold)install$(tput sgr0) package1 [package2 ...]     
+        Install the specified package(s) in separate virtual environments.
+        And add virtual environments to global. If a virtual environment
+        for a package already exists, it will be updated.
+  
+    $script_name $(tput bold)update$(tput sgr0) package1 [package2 ...]
+        Update the specified package(s) in their respective virtual
+        environments. And add virtual environments to global.
+  
+    $script_name $(tput bold)uninstall$(tput sgr0) package1 [package2 ...]
+        Uninstall the specified package(s) by deleting their respective
+        virtual environments. And remove virtual environments from global.
+  
+    $script_name $(tput bold)virtualenvs$(tput sgr0)
+        Show a list of all virtual environments managed by this script.
+  
+    $script_name [$(tput bold)--help$(tput sgr0), $(tput bold)-h$(tput sgr0)]
+        Display this help message.
 
 Examples:
-  $script_name install pdm poetry
-  $script_name update pdm
-  $script_name uninstall pdm
-  $script_name virtualenvs
+    $script_name install pdm poetry
+    $script_name update pdm
+    $script_name uninstall pdm
+    $script_name virtualenvs
 
 Notes:
-  - A virtual environment for each package will be created with a '$venv_prefix' prefix.
+    - A virtual environment for each package will be created with
+      a '$venv_prefix' prefix.
 
 More information: https://github.com/afaikiac/pyenvx
 EOF
