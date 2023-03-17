@@ -132,9 +132,7 @@ function install() {
 function update() {
 	local package=$1
 	local venv_name=$2
-	local venv_file=$3
 
-	echo "$venv_name" >>"$venv_file"
 	install_package_in_venv "$package" "$venv_name"
 	if ! is_line_in_global "$venv_name"; then
 		add_line_to_global "$venv_name"
@@ -243,7 +241,7 @@ function main() {
 				)
 				install "$package" "$venv_name" "$python_version" "$VENVS_FILE"
 			else
-				update "$package" "$venv_name" "$VENVS_FILE"
+				update "$package" "$venv_name"
 			fi
 		done
 		;;
@@ -251,7 +249,7 @@ function main() {
 		for package in "$@"; do
 			local venv_name="$VENV_PREFIX$package"
 			if is_virtualenv "$venv_name"; then
-				update "$package" "$venv_name" "$VENVS_FILE"
+				update "$package" "$venv_name"
 			else
 				log "Virtual environment '$venv_name' not found."
 			fi
