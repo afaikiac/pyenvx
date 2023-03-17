@@ -63,6 +63,12 @@ For instance, if you would like to add system Python and all `pyenvx` virtual en
 pyenv global system $(pyenvx virtualenvs)
 ```
 
+To update all packages installed by this script, you can use the following command:
+
+```bash
+pyenvx update $(pyenvx virtualenvs | sed 's/^pyenvx-//g')
+```
+
 ## Configuration
 
 To make use of CLI tools more convenient, you can add the `pyenv` shims folder to your `$PATH`:
