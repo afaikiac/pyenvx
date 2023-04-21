@@ -105,6 +105,11 @@ function prompt_select_item() {
 	echo "$chosen_item"
 }
 
+function prompt_yes_no() {
+	read -p "$1 [Y/n] "
+	[[ $REPLY =~ ^[Yy]$ ]] || [[ -z $REPLY ]]
+}
+
 function get_python_versions_or_die() {
 	local versions=("$(pyenv versions --bare --skip-aliases | grep -v "/")")
 
@@ -174,7 +179,7 @@ function print_help() {
 	local script_name=$1
 	local venv_prefix=$2
 	cat <<EOF >/dev/tty
-$(tput bold)$(tput setaf 2)pyenvx 2.0.1$(tput sgr0)
+$(tput bold)$(tput setaf 2)pyenvx 2.1.0$(tput sgr0)
 
 A script to manage Python packages with their own virtual environments
 using pyenv and pyenv-virtualenv.
@@ -182,8 +187,8 @@ using pyenv and pyenv-virtualenv.
 Usage:
     $script_name $(tput bold)install$(tput sgr0) package1 [package2 ...]     
         Install the specified package(s) in separate virtual environments.
-        And add virtual environments to global. If a virtual environment
-        for a package already exists, it will be updated.
+        And add virtual environments to global. If a virtual environment for
+        a package already exists, the script will prompt you to recreate it.
   
     $script_name $(tput bold)update$(tput sgr0) package1 [package2 ...]
         Update the specified package(s) in their respective virtual
@@ -232,38 +237,47 @@ function main() {
 		for package in "$@"; do
 			verify_package_name_or_die "$package"
 			local venv_name="$VENV_PREFIX$package"
-			if ! is_virtualenv "$venv_name"; then
-				local python_versions=($(get_python_versions_or_die))
-				local python_version
-				python_version=$(
-					prompt_select_item \
-						"Please enter the Python interpreter to use with '$package'" \
-						"${python_versions[@]}"
-				)
-				install "$package" "$venv_name" "$python_version" "$VENVS_FILE"
-			else
-				update "$package" "$venv_name"
+
+			if is_virtualenv "$venv_name"; then
+				if prompt_yes_no "Do you want to reinstall '$package'?"; then
+					uninstall "$venv_name"
+				else
+					continue
+				fi
 			fi
+
+			local python_versions=($(get_python_versions_or_die))
+			local python_version
+			python_version=$(
+				prompt_select_item \
+					"Please enter the Python interpreter to use with '$package'" \
+					"${python_versions[@]}"
+			)
+			install "$package" "$venv_name" "$python_version" "$VENVS_FILE"
 		done
 		;;
 	update)
 		for package in "$@"; do
 			local venv_name="$VENV_PREFIX$package"
-			if is_virtualenv "$venv_name"; then
-				update "$package" "$venv_name"
-			else
+
+			if ! is_virtualenv "$venv_name"; then
 				log "Virtual environment '$venv_name' not found."
+				continue
 			fi
+
+			update "$package" "$venv_name"
 		done
 		;;
 	uninstall)
 		for package in "$@"; do
 			local venv_name="$VENV_PREFIX$package"
-			if is_virtualenv "$venv_name"; then
-				uninstall "$venv_name"
-			else
+
+			if ! is_virtualenv "$venv_name"; then
 				log "Virtual environment '$venv_name' not found."
+				continue
 			fi
+
+			uninstall "$venv_name"
 		done
 		;;
 	virtualenvs)

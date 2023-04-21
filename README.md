@@ -27,20 +27,20 @@ using pyenv and pyenv-virtualenv.
 Usage:
     pyenvx install package1 [package2 ...]
         Install the specified package(s) in separate virtual environments.
-        And add virtual environments to global. If a virtual environment
-        for a package already exists, it will be updated.
-
+        And add virtual environments to global. If a virtual environment for
+        a package already exists, the script will prompt you to recreate it.
+  
     pyenvx update package1 [package2 ...]
         Update the specified package(s) in their respective virtual
         environments. And add virtual environments to global.
-
+  
     pyenvx uninstall package1 [package2 ...]
         Uninstall the specified package(s) by deleting their respective
         virtual environments. And remove virtual environments from global.
-
+  
     pyenvx virtualenvs
         Show a list of all virtual environments managed by this script.
-
+  
     pyenvx [--help, -h]
         Display this help message.
 
