@@ -56,6 +56,7 @@ function install_package_in_venv() {
 	local venv_name=$2
 
 	pyenv activate "$venv_name"
+	python -m pip install --upgrade pip
 	pip install --upgrade "$package"
 	log "Package '$package' was installed successfully in '$venv_name' virtual environment"
 	pyenv deactivate
