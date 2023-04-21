@@ -180,7 +180,7 @@ function print_help() {
 	local script_name=$1
 	local venv_prefix=$2
 	cat <<EOF >/dev/tty
-$(tput bold)$(tput setaf 2)pyenvx 2.1.0$(tput sgr0)
+$(tput bold)$(tput setaf 2)pyenvx 2.2.0$(tput sgr0)
 
 A script to manage Python packages with their own virtual environments
 using pyenv and pyenv-virtualenv.
