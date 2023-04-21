@@ -21,12 +21,6 @@ function verify_pyenv_in_path_or_die() {
 	fi
 }
 
-function verify_pyenv_virtualenv_module_or_die() {
-	if ! command -v pyenv virtualenv &>/dev/null; then
-		die "'pyenv virtualenv' not found. Please install it first."
-	fi
-}
-
 function is_virtualenv() {
 	local venv_name="$1"
 	pyenv virtualenvs --bare --skip-aliases | grep "^.*/$venv_name$" &>/dev/null
@@ -168,12 +162,20 @@ function update_venv_list_in_file() {
 	printf "%s\n" "${venvs[@]}" >"$file_fullpath"
 }
 
-function setup_pyenv_or_die() {
-	verify_pyenv_in_path_or_die
-	verify_pyenv_virtualenv_module_or_die
+function setup_pyenv_virtualenv() {
+	local pyenv_virtualenv_root
+	pyenv_virtualenv_root="$(pyenv root)/plugins/pyenv-virtualenv"
 
-	eval "$(pyenv init -)"
-	eval "$(pyenv virtualenv-init -)"
+	if [ ! -d "$pyenv_virtualenv_root" ]; then
+		local plugin_repo_url="https://github.com/pyenv/pyenv-virtualenv.git"
+		git clone "$plugin_repo_url" "$pyenv_virtualenv_root"
+	else
+		if GIT_DIR="$pyenv_virtualenv_root/.git" git fetch &&
+			! GIT_DIR="$pyenv_virtualenv_root/.git" git status -uno | grep -q 'Your branch is up to date'; then
+			log "Update for pyenv-virtualenv is available"
+			log "To update, run: $(tput setaf 2)cd $pyenv_virtualenv_root && git pull$(tput sgr0)"
+		fi
+	fi
 }
 
 function print_help() {
@@ -223,7 +225,10 @@ function main() {
 	local VENVS_FILE="${XDG_DATA_HOME:-"$HOME/.local/share"}/pyenvx/virtualenvs"
 	local VENV_PREFIX="pyenvx-"
 
-	setup_pyenv_or_die
+	verify_pyenv_in_path_or_die
+	eval "$(pyenv init -)"
+	setup_pyenv_virtualenv
+	eval "$(pyenv virtualenv-init -)"
 
 	if ! [[ -e "$VENVS_FILE" ]]; then
 		mkdir -p "$(dirname "$VENVS_FILE")"

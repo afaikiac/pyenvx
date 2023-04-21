@@ -4,9 +4,7 @@ This script is inspired by pipx, but it's designed to work seamlessly with pyenv
 
 ## Requirements
 
-- [`pyenv`](https://github.com/pyenv/pyenv#installation) must be installed and configured.
-- [`pyenv-virtualenv`](https://github.com/pyenv/pyenv-virtualenv#installation) must be installed and integrated with `pyenv`.
-- `curl`
+[`pyenv`](https://github.com/pyenv/pyenv#installation) `curl` `git`
 
 ## Installation
 
