@@ -11,7 +11,7 @@ This script is inspired by pipx, but it's designed to work seamlessly with pyenv
 ## Installation
 
 ```bash
-FILE="~/.local/bin/pyenvx" bash -c "curl -fsSl https://raw.githubusercontent.com/afaikiac/pyenvx/main/pyenvx.bash -o $FILE && chmod +x $FILE && echo 'pyenvx was installed!'"
+bash -c 'FILE="$HOME/.local/bin/pyenvx"; curl -fsSL https://github.com/afaikiac/pyenvx/releases/latest/download/pyenvx.bash -o "$FILE" && chmod +x "$FILE" && echo "pyenvx was installed!"'
 ```
 
 ## Usage
