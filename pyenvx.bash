@@ -158,11 +158,11 @@ function update_venv_list_in_file() {
 	local file_fullpath=$1
 	local venvs
 
-	while IFS= read -r line; do
+	while read -r line; do
 		if is_virtualenv "$line"; then
 			venvs+=("$line")
 		fi
-	done <"$file_fullpath"
+	done < <(sort -u "$file_fullpath")
 
 	printf "%s\n" "${venvs[@]}" >"$file_fullpath"
 }
