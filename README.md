@@ -4,9 +4,17 @@ This script is inspired by pipx, but it's designed to work seamlessly with pyenv
 
 ## Requirements
 
-[`pyenv`](https://github.com/pyenv/pyenv#installation) `curl` `git`
+[`pyenv`](https://github.com/pyenv/pyenv#installation) `bash` `curl` `git`
 
 ## Installation
+
+### Last commit version
+
+```bash
+bash -c 'FILE="$HOME/.local/bin/pyenvx"; curl -fsSL https://raw.githubusercontent.com/afaikiac/pyenvx/main/pyenvx.bash -o "$FILE" && chmod +x "$FILE" && echo "pyenvx was installed!"'
+```
+
+### Last release version
 
 ```bash
 bash -c 'FILE="$HOME/.local/bin/pyenvx"; curl -fsSL https://github.com/afaikiac/pyenvx/releases/latest/download/pyenvx.bash -o "$FILE" && chmod +x "$FILE" && echo "pyenvx was installed!"'
