@@ -2,31 +2,37 @@
 
 set -euo pipefail
 
-function print() {
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+NORMAL=$(tput sgr0)
+BOLD=$(tput bold)
+
+print() {
 	printf "%s\n" "$@" &>/dev/tty
 }
 
-function log() {
+log() {
 	printf "%s\n" "[$(basename "$0")] $1" &>/dev/tty
 }
 
-function die() {
+die() {
 	log "$@"
 	exit 1
 }
 
-function verify_pyenv_in_path_or_die() {
+verify_pyenv_in_path_or_die() {
 	if ! command -v pyenv &>/dev/null; then
 		die "'pyenv' not found. Please install it first."
 	fi
 }
 
-function is_virtualenv() {
+is_virtualenv() {
 	local venv_name="$1"
 	pyenv virtualenvs --bare --skip-aliases | grep "^.*/$venv_name$" &>/dev/null
 }
 
-function verify_package_name_or_die() {
+verify_package_name_or_die() {
 	local package=$1
 	local response
 	response=$(curl -s -o /dev/null -w "%{http_code}" https://pypi.org/project/"$package"/)
@@ -37,7 +43,7 @@ function verify_package_name_or_die() {
 	log "Package '$package' found in PyPI"
 }
 
-function create_venv() {
+create_venv() {
 	local venv_name=$1
 	local python_version=$2
 
@@ -45,7 +51,7 @@ function create_venv() {
 	log "Virtual environment '$venv_name' was created"
 }
 
-function install_package_in_venv() {
+install_package_in_venv() {
 	local package=$1
 	local venv_name=$2
 
@@ -56,22 +62,22 @@ function install_package_in_venv() {
 	pyenv deactivate
 }
 
-function is_line_in_global() {
+is_line_in_global() {
 	local line=$1
 	pyenv global | grep "^$line$" &>/dev/null
 }
 
-function add_line_to_global() {
+add_line_to_global() {
 	local line=$1
 	pyenv global $(pyenv global) $line
 }
 
-function remove_line_from_global() {
+remove_line_from_global() {
 	local line=$1
 	pyenv global $(pyenv global | grep -v "^$line$")
 }
 
-function prompt_select_item() {
+prompt_select_item() {
 	local prompt_text=$1
 	shift 1
 	local items=("$@")
@@ -100,12 +106,12 @@ function prompt_select_item() {
 	echo "$chosen_item"
 }
 
-function prompt_yes_no() {
+prompt_yes_no() {
 	read -p "$1 [Y/n] "
 	[[ $REPLY =~ ^[Yy]$ ]] || [[ -z $REPLY ]]
 }
 
-function get_python_versions_or_die() {
+get_python_versions_or_die() {
 	local versions=("$(pyenv versions --bare --skip-aliases | grep -v "/")")
 
 	if [ ${#versions[@]} -eq 0 ]; then
@@ -115,7 +121,7 @@ function get_python_versions_or_die() {
 	echo "${versions[@]}"
 }
 
-function install() {
+install() {
 	local package=$1
 	local venv_name=$2
 	local python_version=$3
@@ -129,7 +135,7 @@ function install() {
 	fi
 }
 
-function update() {
+update() {
 	local package=$1
 	local venv_name=$2
 
@@ -139,7 +145,7 @@ function update() {
 	fi
 }
 
-function uninstall() {
+uninstall() {
 	local venv_name=$1
 
 	if is_line_in_global "$venv_name"; then
@@ -149,7 +155,7 @@ function uninstall() {
 	log "Virtual environment '$venv_name' was uninstalled"
 }
 
-function setup_pyenv_virtualenv() {
+setup_pyenv_virtualenv() {
 	local pyenv_virtualenv_root
 	pyenv_virtualenv_root="$(pyenv root)/plugins/pyenv-virtualenv"
 
@@ -160,44 +166,44 @@ function setup_pyenv_virtualenv() {
 		if GIT_DIR="$pyenv_virtualenv_root/.git" git fetch &&
 			! GIT_DIR="$pyenv_virtualenv_root/.git" git status -uno | grep -q 'Your branch is up to date'; then
 			log "Update for pyenv-virtualenv is available"
-			log "To update, run: $(tput setaf 2)cd $pyenv_virtualenv_root && git pull$(tput sgr0)"
+			log "To update, run: ${GREEN}cd $pyenv_virtualenv_root && git pull${NORMAL}"
 		fi
 	fi
 }
 
-function print_virtualenvs() {
+print_virtualenvs() {
 	local venv_prefix="$1"
 
 	pyenv virtualenvs --bare | grep "^$venv_prefix" | cut -d ' ' -f 1
 }
 
-function print_help() {
+print_help() {
 	local script_name=$1
 	local venv_prefix=$2
 	cat <<EOF >/dev/tty
-$(tput bold)$(tput setaf 2)pyenvx 2.3.0$(tput sgr0)
+${BOLD}${GREEN}pyenvx 2.3.0${NORMAL}
 
 A script to manage Python packages with their own virtual environments
 using pyenv and pyenv-virtualenv.
 
 Usage:
-    $script_name $(tput bold)install$(tput sgr0) package1 [package2 ...]     
+    $script_name ${BOLD}install${NORMAL} package1 [package2 ...]     
         Install the specified package(s) in separate virtual environments.
         And add virtual environments to global. If a virtual environment for
         a package already exists, the script will prompt you to recreate it.
   
-    $script_name $(tput bold)update$(tput sgr0) package1 [package2 ...]
+    $script_name ${BOLD}update${NORMAL} package1 [package2 ...]
         Update the specified package(s) in their respective virtual
         environments. And add virtual environments to global.
   
-    $script_name $(tput bold)uninstall$(tput sgr0) package1 [package2 ...]
+    $script_name ${BOLD}uninstall${NORMAL} package1 [package2 ...]
         Uninstall the specified package(s) by deleting their respective
         virtual environments. And remove virtual environments from global.
   
-    $script_name $(tput bold)virtualenvs$(tput sgr0)
+    $script_name ${BOLD}virtualenvs${NORMAL}
         Show a list of all virtual environments managed by this script.
   
-    $script_name [$(tput bold)--help$(tput sgr0), $(tput bold)-h$(tput sgr0)]
+    $script_name [${BOLD}--help${NORMAL}, ${BOLD}-h${NORMAL}]
         Display this help message.
 
 Examples:
@@ -214,7 +220,7 @@ More information: https://github.com/afaikiac/pyenvx
 EOF
 }
 
-function main() {
+main() {
 	local VENV_PREFIX="pyenvx-"
 
 	verify_pyenv_in_path_or_die
