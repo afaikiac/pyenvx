@@ -149,19 +149,6 @@ function uninstall() {
 	log "Virtual environment '$venv_name' was uninstalled"
 }
 
-function update_venv_list_in_file() {
-	local file_fullpath=$1
-	local venvs
-
-	while read -r line; do
-		if is_virtualenv "$line"; then
-			venvs+=("$line")
-		fi
-	done < <(sort -u "$file_fullpath")
-
-	printf "%s\n" "${venvs[@]}" >"$file_fullpath"
-}
-
 function setup_pyenv_virtualenv() {
 	local pyenv_virtualenv_root
 	pyenv_virtualenv_root="$(pyenv root)/plugins/pyenv-virtualenv"
@@ -178,11 +165,17 @@ function setup_pyenv_virtualenv() {
 	fi
 }
 
+function print_virtualenvs() {
+	local venv_prefix="$1"
+
+	pyenv virtualenvs --bare | grep "^$venv_prefix" | cut -d ' ' -f 1
+}
+
 function print_help() {
 	local script_name=$1
 	local venv_prefix=$2
 	cat <<EOF >/dev/tty
-$(tput bold)$(tput setaf 2)pyenvx 2.2.0$(tput sgr0)
+$(tput bold)$(tput setaf 2)pyenvx 2.3.0$(tput sgr0)
 
 A script to manage Python packages with their own virtual environments
 using pyenv and pyenv-virtualenv.
@@ -222,18 +215,12 @@ EOF
 }
 
 function main() {
-	local VENVS_FILE="${XDG_DATA_HOME:-"$HOME/.local/share"}/pyenvx/virtualenvs"
 	local VENV_PREFIX="pyenvx-"
 
 	verify_pyenv_in_path_or_die
 	eval "$(pyenv init -)"
 	setup_pyenv_virtualenv
 	eval "$(pyenv virtualenv-init -)"
-
-	if ! [[ -e "$VENVS_FILE" ]]; then
-		mkdir -p "$(dirname "$VENVS_FILE")"
-		touch "$VENVS_FILE"
-	fi
 
 	local command=${1:-"--help"}
 	shift || true
@@ -287,8 +274,7 @@ function main() {
 		done
 		;;
 	virtualenvs)
-		update_venv_list_in_file "$VENVS_FILE"
-		cat "$VENVS_FILE"
+		print_virtualenvs "$VENV_PREFIX"
 		;;
 	--help | -h | *)
 		print_help "$(basename "$0")" "$VENV_PREFIX"
