@@ -125,9 +125,7 @@ install() {
 	local package=$1
 	local venv_name=$2
 	local python_version=$3
-	local venv_file=$4
 
-	echo "$venv_name" >>"$venv_file"
 	create_venv "$venv_name" "$python_version"
 	install_package_in_venv "$package" "$venv_name"
 	if ! is_line_in_global "$venv_name"; then
@@ -252,7 +250,7 @@ main() {
 					"Please enter the Python interpreter to use with '$package'" \
 					"${python_versions[@]}"
 			)
-			install "$package" "$venv_name" "$python_version" "$VENVS_FILE"
+			install "$package" "$venv_name" "$python_version"
 		done
 		;;
 	update)
