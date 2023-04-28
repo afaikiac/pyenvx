@@ -80,7 +80,7 @@ pyenvx update $(pyenvx virtualenvs | sed 's/^pyenvx-//g')
 To make use of CLI tools more convenient, you can add the `pyenv` shims folder to your `$PATH`:
 
 ```bash
-export PATH=$PYENV_ROOT/shims:$PATH"
+export PATH="$(pyenv root)/shims:$PATH"
 ```
 
 Shell completions for CLI tools can be added manually, depending on your preferred shell.
