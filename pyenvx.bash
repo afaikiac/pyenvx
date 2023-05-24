@@ -17,7 +17,8 @@ log() {
 }
 
 die() {
-	log "$@"
+	local message=${1:-"Somethig went wrong"}
+	log "$message"
 	exit 1
 }
 
@@ -280,7 +281,12 @@ main() {
 	virtualenvs)
 		print_virtualenvs "$VENV_PREFIX"
 		;;
-	--help | -h | *)
+	--help | -h)
+		print_help "$(basename "$0")" "$VENV_PREFIX"
+		exit 0
+		;;
+	*)
+		print "Invalid command: $command"
 		print_help "$(basename "$0")" "$VENV_PREFIX"
 		exit 1
 		;;
